@@ -23,6 +23,27 @@ public class ViewLivre {
         livre.AjouterLivre(livre);
         return livre;
     }
+
+    public static Livres updatelivre() throws Exception {
+        Scanner scan=new Scanner(System.in);
+        System.out.println("donner id de livre");
+        String id= scan.nextLine();
+        System.out.println("donner le nom de livre");
+        String nom_livre= scan.nextLine();
+        System.out.println("donner le nom d'auteur");
+        String nom_auteur= scan.nextLine();
+        System.out.println("donner le ISBN de livre");
+        int ISBN= Integer.parseInt(scan.nextLine());
+        Livres livre=new Livres();
+        livre.setId(Integer.parseInt(id));
+        livre.setNomLivre(nom_livre);
+        livre.setAuteur(nom_auteur);
+        livre.SetId_statut(1);
+        livre.setISBN(1234);
+        livre.AjouterLivre(livre);
+        return livre;
+    }
+
     public static void getLivreDisponible() throws Exception {
         Livres livre=new Livres();
         List<Livres> livresList=livre.AffichageLivreDispo();

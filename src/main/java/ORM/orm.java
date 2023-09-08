@@ -48,27 +48,37 @@ public class orm {
         }
 
     }
+
     public boolean update(Map<String, String> array) throws Exception {
         db database=new db();
         Connection con=null;
         PreparedStatement ps=null;
-        String sql="UPDATE FROM "+tableName;
+        int index=0;
         try{
             con=database.connect();
-            if(this.conditions.length()>0){
-                sql+=" WHERE "+this.conditions;
-                System.out.println(sql);
+            if(conditions.length()>0){
+                String sql="UPDATE "+this.tableName+" SET ";
+                for(Map.Entry<String, String> items : array.entrySet()){
+                    if (index<array.size()-1){
+                        sql+=items.getKey() + "='"+ items.getValue() + "'," ;
+                    }else{
+                        sql+=items.getKey()+ "='"+ items.getValue()  + "' WHERE " ;
+                    }
+                    index++;
+                }
+                sql+=conditions;
                 ps=con.prepareStatement(sql);
-                ps.executeUpdate();
+                ps.execute();
+                return true;
             }else {
                 System.err.println("Error: No conditions specified for the SQL query.");
             }
         }catch(Exception e){
             System.out.println("il ya une error de l'insertion\n"+e);
         }
-
         return true;
     }
+
     public ResultSet get() throws Exception {
         db database=new db();
         Connection con=null;
@@ -105,7 +115,7 @@ public class orm {
                 System.err.println("Error: No conditions specified for the SQL query.");
             }
         }catch(Exception e){
-            System.out.println("il ya une error de l'insertion\n"+e);
+            System.out.println("il ya une error durant delete\n"+e);
         }
 
         return true;
@@ -120,7 +130,7 @@ public class orm {
             conditions.append(Column).append(operateur).append(condition);
             return this;
         }catch(Exception e){
-            System.out.println("il ya une error de l'insertion\n"+e);
+            System.out.println("il ya une error de condition\n"+e);
         }
         return this;
     }
@@ -132,7 +142,7 @@ public class orm {
             conditions.append(Column).append(operateur).append(condition);
             return this;
         }catch(Exception e){
-            System.out.println("il ya une error de l'insertion\n"+e);
+            System.out.println("il ya une error de condition\n"+e);
         }
         return this;
     }

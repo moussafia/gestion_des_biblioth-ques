@@ -14,6 +14,10 @@ public class Livres {
     public int getId() {
         return id;
     }
+
+    public int setId(int id) {
+        return id=id;
+    }
     public int getId_statut() {
         return id_statut;
     }
@@ -50,6 +54,18 @@ public class Livres {
         dataLivre.put("id_status",String.valueOf(livre.getId_statut()));
         dataLivre.put("ISBN",String.valueOf(livre.getISBN()));
         insertLivre.save(dataLivre);
+        System.out.println(livre);
+        return livre;
+    }
+
+    public static Livres UpdateLivre(Livres livre) throws Exception {
+        orm updaterLivre=new orm("livre");
+        Map<String, String> dataLivre=new HashMap<>();
+        dataLivre.put("nom_livre", livre.getNomLivre());
+        dataLivre.put("auteur",livre.getAuteur());
+        dataLivre.put("id_status",String.valueOf(livre.getId_statut()));
+        dataLivre.put("ISBN",String.valueOf(livre.getISBN()));
+        updaterLivre.WHERE("id","=",String.valueOf(livre.getId()));
         System.out.println(livre);
         return livre;
     }
