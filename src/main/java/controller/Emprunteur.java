@@ -13,6 +13,14 @@ public class Emprunteur {
                 this.id = id;
         }
 
+        public String getNom() {
+                return nom;
+        }
+
+        public void setNom(String nom) {
+                this.nom = nom;
+        }
+
         public int getNumeroCondidat() {
                 return numeroCondidat;
         }
@@ -21,11 +29,12 @@ public class Emprunteur {
                 this.numeroCondidat = numeroCondidat;
         }
 
-        public String getNom() {
-                return nom;
-        }
+        public Emprunteur EmprunterLivre(Emprunteur emprunte,int ISBN){
+                String sql_emprunteur="INSERT INTO emprunteurs(nom_emprunteur,numero_condidat) values('";
+                sql_emprunteur+=getNom()+"','"+getNumeroCondidat()+"')";
 
-        public void setNom(String nom) {
-                this.nom = nom;
+                String sql_emprunteurs_livres="INSERT INTO emprunteurs_livre values(";
+
+                return  emprunte;
         }
 }

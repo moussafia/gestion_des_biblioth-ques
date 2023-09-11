@@ -13,7 +13,7 @@ public class orm {
         this.tableName=table_name;
         this.conditions=new StringBuilder();
     }
-    public boolean save(Map<String, String> array) throws Exception {
+    public <k, v> boolean save(Map<k, v> array) throws Exception {
         db database=new db();
         Connection con=null;
         PreparedStatement ps=null;
@@ -21,7 +21,7 @@ public class orm {
         try{
             con=database.connect();
             String sql="Insert INTO "+this.tableName+"(";
-            for(Map.Entry<String, String> items : array.entrySet()){
+            for(Map.Entry<k, v> items : array.entrySet()){
                 if (index<array.size()-1){
                     sql+=items.getKey() + "," ;
                 }else{
@@ -31,7 +31,7 @@ public class orm {
             }
             sql+="values (";
             index=0;
-            for(Map.Entry<String, String> items : array.entrySet()){
+            for(Map.Entry<k, v> items : array.entrySet()){
                 if (index<array.size()-1){
                     sql+="'"+items.getValue() + "'," ;
                 }else{
@@ -69,6 +69,7 @@ public class orm {
                 sql+=conditions;
                 ps=con.prepareStatement(sql);
                 ps.execute();
+                System.out.println(sql);
                 return true;
             }else {
                 System.err.println("Error: No conditions specified for the SQL query.");
@@ -90,6 +91,7 @@ public class orm {
             if(this.conditions.length()>0){
                 sql+=" WHERE "+this.conditions;
             }
+            System.out.println(sql);
             ps=con.prepareStatement(sql);
             response=ps.executeQuery();
         }catch(Exception e){
@@ -121,29 +123,50 @@ public class orm {
         return true;
     }
 
+    public  ResultSet first() throws Exception{
+        db database=new db();
+        Connection con=null;
+        PreparedStatement ps=null;
+        ResultSet response=null;
+        String sql="SELECT * FROM "+tableName;
+        try{
+            con=database.connect();
+            if(this.conditions.length()>0){
+                sql+=" WHERE "+this.conditions;
+            }
+            sql+=" LIMIT 1";
+            ps=con.prepareStatement(sql);
+            response=ps.executeQuery();
+        }catch(Exception e){
+            System.out.println("il ya une error de l'insertion\n"+e);
+        }
 
-    public orm WHERE(String Column, String operateur, String condition) throws Exception {
+        return response;
+    }
+
+    public <T> orm WHERE(String Column, String operateur, T condition) throws Exception {
         try{
           if(this.conditions.length() >0){
               this.conditions.append(" AND ");
           }
-            conditions.append(Column).append(operateur).append(condition);
+            conditions.append(Column).append(operateur).append("'"+condition+"'");
             return this;
         }catch(Exception e){
             System.out.println("il ya une error de condition\n"+e);
         }
         return this;
     }
-    public orm orWHERE(String Column, String operateur, String condition) throws Exception {
+    public <T>orm orWHERE(String Column, String operateur, T condition) throws Exception {
         try{
             if(this.conditions.length() >0){
                 this.conditions.append(" OR ");
             }
-            conditions.append(Column).append(operateur).append(condition);
+            conditions.append(Column).append(operateur).append("'"+condition+"'");
             return this;
         }catch(Exception e){
             System.out.println("il ya une error de condition\n"+e);
         }
         return this;
     }
+
 }

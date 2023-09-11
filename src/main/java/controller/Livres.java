@@ -11,48 +11,15 @@ public class Livres {
     private String nomLivre;
     private int ISBN;
     private int id_statut;
-    public int getId() {
-        return id;
-    }
 
-    public int setId(int id) {
-        return id=id;
-    }
-    public int getId_statut() {
-        return id_statut;
-    }
-    public int SetId_statut(int id_statut) {
-        return id_statut=id_statut;
-    }
-
-    public int getISBN() {
-        return ISBN;
-    }
-    public int setISBN(int ISBN) {
-        return ISBN=ISBN;
-    }
-
-    public String getAuteur() {
-        return auteur;
-    }
-    public String setAuteur(String auteur) {
-        return auteur=auteur;
-    }
-    public String getNomLivre() {
-        return nomLivre;
-    }
-
-    public String setNomLivre(String nomLivre) {
-        return nomLivre=nomLivre;
-    }
 
     public static Livres AjouterLivre(Livres livre) throws Exception {
         orm insertLivre=new orm("livre");
         Map<String, String> dataLivre=new HashMap<>();
         dataLivre.put("nom_livre",livre.getNomLivre());
         dataLivre.put("auteur",livre.getAuteur());
-        dataLivre.put("id_status",String.valueOf(livre.getId_statut()));
         dataLivre.put("ISBN",String.valueOf(livre.getISBN()));
+        dataLivre.put("id_status",String.valueOf(1));
         insertLivre.save(dataLivre);
         System.out.println(livre);
         return livre;
@@ -65,8 +32,8 @@ public class Livres {
         dataLivre.put("auteur",livre.getAuteur());
         dataLivre.put("id_status",String.valueOf(livre.getId_statut()));
         dataLivre.put("ISBN",String.valueOf(livre.getISBN()));
-        updaterLivre.WHERE("id","=",String.valueOf(livre.getId()));
-        System.out.println(livre);
+        updaterLivre.WHERE("id","=",String.valueOf(livre.getId())).update(dataLivre);
+        System.out.println(livre.id);
         return livre;
     }
     public List<Livres> AffichageLivreDispo() throws Exception{
@@ -96,5 +63,63 @@ public class Livres {
         return true;
     }
 
+    public <T> List<Livres> rechercheISBN(T recherche) throws Exception{
+        orm rechercheLivre=new orm("collections");
+        List<Livres> LivresList=new ArrayList<>();
+        ResultSet dataLivres= rechercheLivre.WHERE("ISBN","=",  recherche)
+                .orWHERE("auteur","=",  recherche)
+                .orWHERE("nom_livre","=",  recherche)
+                .get();
+        while (dataLivres.next()){
+            Livres livre=new Livres();
+            livre.id=dataLivres.getInt("id");
+            livre.nomLivre=dataLivres.getString("nom_livre");
+            livre.auteur=dataLivres.getString("auteur");
+            livre.ISBN=dataLivres.getInt("ISBN");
+            LivresList.add(livre);
+        }
+        return LivresList;
+
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getAuteur() {
+        return auteur;
+    }
+
+    public void setAuteur(String auteur) {
+        this.auteur = auteur;
+    }
+
+    public String getNomLivre() {
+        return nomLivre;
+    }
+
+    public void setNomLivre(String nomLivre) {
+        this.nomLivre = nomLivre;
+    }
+
+    public int getISBN() {
+        return ISBN;
+    }
+
+    public void setISBN(int ISBN) {
+        this.ISBN = ISBN;
+    }
+
+    public int getId_statut() {
+        return id_statut;
+    }
+
+    public void setId_statut(int id_statut) {
+        this.id_statut = id_statut;
+    }
 }
 
