@@ -12,10 +12,10 @@ public class index {
                 System.out.println("3: supprimer une livre");
                 System.out.println("4: modifier une livre ");
                 System.out.println("5: rechercher par une ISBN ou auteur ou nom de livre");
-                System.out.println("7: emprunter un livre");
-                System.out.println("8: afficher les livres emprunter");
-                System.out.println("9: retourner un livre emprunter");
-                System.out.println("10: afficher les statistique");
+                System.out.println("6: emprunter un livre");
+                System.out.println("7: afficher les livres emprunter");
+                System.out.println("8: retourner un livre emprunter");
+                System.out.println("9: afficher les statistique");
                 int choise=scan.nextInt();
                 switch (choise){
                     case 1:
@@ -32,6 +32,18 @@ public class index {
                         break;
                     case 5:
                         livre.rechercheByISBN();
+                        break;
+                    case 6:
+                        livre.EmpruntLivre();
+                        break;
+                    case 7:
+                        livre.afficheLivreEmprunte();
+                        break;
+                    case 8:
+                        livre.RetournerLivreEmprunte();
+                        break;
+                    case 9:
+                        livre.StatistiqueLivre();
                         break;
                 }
 

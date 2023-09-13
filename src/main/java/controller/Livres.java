@@ -1,7 +1,10 @@
 package controller;
 
 import ORM.orm;
+import database.db;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -64,7 +67,7 @@ public class Livres {
     }
 
     public <T> List<Livres> rechercheISBN(T recherche) throws Exception{
-        orm rechercheLivre=new orm("collections");
+        orm rechercheLivre=new orm("livre");
         List<Livres> LivresList=new ArrayList<>();
         ResultSet dataLivres= rechercheLivre.WHERE("ISBN","=",  recherche)
                 .orWHERE("auteur","=",  recherche)
@@ -80,6 +83,27 @@ public class Livres {
         }
         return LivresList;
 
+    }
+    public  <T> List<Status> statistiqueStatus() throws Exception {
+        PreparedStatement ps=null;
+        ResultSet response=null;
+        db database=new db();
+        Connection con=null;
+        List<Status> countLivre=new ArrayList<>();
+        con=database.connect();
+        String sql="SELECT \tCount(*) as nombre_livre , s.status\n" +
+                "FROM livre l\n" +
+                "join status s on l.status_id=s.id\n" +
+                "GROUP  BY s.status;";
+        ps=con.prepareStatement(sql);
+        response=ps.executeQuery();
+        while (response.next()){
+            Status status=new Status();
+            status.setStatus(response.getString("status"));
+            status.setNombre_livre(response.getInt("nombre_livre"));
+            countLivre.add(status);
+        }
+        return  countLivre;
     }
 
     public int getId() {
