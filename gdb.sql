@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 14 sep. 2023 à 20:53
+-- Généré le : jeu. 14 sep. 2023 à 21:18
 -- Version du serveur : 10.4.25-MariaDB
 -- Version de PHP : 8.1.10
 
@@ -99,11 +99,21 @@ CREATE TABLE `emprunteur_livre` (
 
 INSERT INTO `emprunteur_livre` (`emprunteur_id`, `livre_id`, `date_emprunte`, `date_retour`, `retard`, `isRetourner`) VALUES
 (1, 1, '2023-09-14', '2023-10-24', 0, 1),
-(2, 2, '2023-09-14', '2023-10-24', 0, 0);
+(2, 2, '2023-09-14', '2023-10-24', 0, 1);
 
 --
 -- Déclencheurs `emprunteur_livre`
 --
+DELIMITER $$
+CREATE TRIGGER `RETourner_livre` AFTER UPDATE ON `emprunteur_livre` FOR EACH ROW BEGIN
+    IF NEW.isRetourner = 1 THEN
+        UPDATE livre
+        SET satus_id = 1
+        WHERE id = NEW.livre_id;
+    END IF;
+END
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `update_statut_livre` AFTER INSERT ON `emprunteur_livre` FOR EACH ROW BEGIN
     UPDATE livre
@@ -130,8 +140,8 @@ CREATE TABLE `livre` (
 --
 
 INSERT INTO `livre` (`id`, `collection_id`, `satus_id`) VALUES
-(1, 1, 2),
-(2, 1, 2),
+(1, 1, 1),
+(2, 1, 1),
 (3, 1, 1),
 (4, 1, 1),
 (5, 1, 1),
