@@ -3,6 +3,7 @@ package controller;
 import ORM.orm;
 
 import java.sql.ResultSet;
+import java.sql.SQLOutput;
 import java.text.SimpleDateFormat;
 import java.util.*;
 public class Emprunteur {
@@ -22,16 +23,13 @@ public class Emprunteur {
                 ResultSet ormIdLivre=orm.query(sqlIdLivreDisponible);
                 if(ormIdLivre!=null){
                     int livre_id=ormIdLivre.getInt("id");
-                    System.out.println(livre_id);
                     orm ormEmprunteur = new orm("emprunteur");
                     Map<Object, Object> dataEmprunteur = new HashMap<>();
                     dataEmprunteur.put("nemuro_emprunteur", emprunte.getNumeroCondidat());
                     dataEmprunteur.put("nom_emprunteur", emprunte.getNom());
                     ResultSet generatedKeyIDEmprunteur = ormEmprunteur.save(dataEmprunteur);
-                    System.out.println("after save emprunteur");
                     if (generatedKeyIDEmprunteur.next()) {
                         emprunteur_id = generatedKeyIDEmprunteur.getInt(1);
-                        System.out.println(emprunteur_id);
                         Map<Object, Object> dataEmpruntLivre = new HashMap<>();
                         dataEmpruntLivre.put("emprunteur_id", emprunteur_id);
                         dataEmpruntLivre.put("livre_id", String.valueOf(livre_id));
@@ -58,13 +56,13 @@ public class Emprunteur {
         public static boolean CheckEmprunteur(int nCondidat) throws Exception {
             orm ormEmprunteur=new orm();
             int emprunteur_id=ormEmprunteur.find("emprunteur","nemuro_emprunteur",nCondidat);
+            System.out.println(emprunteur_id);
             String sql="SELECT isRetourner as retourned FROM `emprunteur_livre` " +
                     "el WHERE el.emprunteur_id='"+emprunteur_id+"' ORDER BY el.isRetourner DESC  \n" +
                     "LIMIT 1";
             ResultSet dataIsRetourned=ormEmprunteur.query(sql);
             if(dataIsRetourned!=null){
-                boolean isRetourned=dataIsRetourned.getBoolean(1)? true : false ;
-                return isRetourned;
+                return dataIsRetourned.getBoolean(1);
             }else {
                 return true;
             }

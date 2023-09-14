@@ -42,7 +42,6 @@ public class orm {
                 }
                 index++;
             }
-            System.out.println(sql);
             ps=con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.executeUpdate();
             generatedKeys = ps.getGeneratedKeys();

@@ -78,7 +78,7 @@ public class Collections {
         List<Collections> LivresList=new ArrayList<>();
         String sqlRecherche="SELECT c.nom_livre,c.ISBN,c.auteur,count(*) as quantity\n" +
                 " FROM `collection` c Join livre l on l.collection_id=c.id " +
-                "where c."+key+"='"+recherche+"' AND l.satus_id=1 GROUP by c."+key;
+                "where c."+key+" LIKE '%"+recherche+"%' AND l.satus_id=1 GROUP by c."+key;
         db database=new db();
         Connection con=null;
         PreparedStatement ps=null;
