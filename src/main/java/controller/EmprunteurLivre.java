@@ -18,69 +18,66 @@ public class EmprunteurLivre {
     private Date date_retour;
     private int retard;
 
+    private Collections collections;
+
     private Livres livre;
 
     private Emprunteur emprunteur;
-    private EmprunteurLivre emprunteur_livre;
+    private Status status;
+
+    private EmprunteurLivre emprunt_livre;
 
 
-    public <T>List<EmprunteurLivre> AffichageLivreEmprunter(String column,T condition) throws Exception{
+    public <T>List<EmprunteurLivre> AffichageLivreEmprunter() throws Exception{
         List<EmprunteurLivre> livresList=new ArrayList<>();
         PreparedStatement ps=null;
         ResultSet response=null;
         db database=new db();
         Connection con=null;
         con=database.connect();
-        String sql="SELECT l.nom_livre,l.auteur,l.ISBN,e.nom_emprunteur,\n" +
-                "e.numero_condidat,el.date_emprunte,el.date_retour,el.retard\n" +
-                " FROM livre l\n" +
-                "join emprunteur_livre el on l.id=el.livre_id\n" +
-                "JOIN emprunteur e on e.id=el.emprunteur_id\n" +
-                "WHERE "+column+"='"+condition+"'";
+        String sql="SELECT c.nom_livre,c.auteur,c.ISBN,s.status,\n" +
+                "e.nom_emprunteur,e.nemuro_emprunteur,el.date_emprunte,\n" +
+                "el.date_retour,el.retard from collection c\n" +
+                "join livre l on c.id=l.collection_id \n" +
+                "join status s on l.satus_id=s.id \n" +
+                "join emprunteur e\n" +
+                "join emprunteur_livre el on el.emprunteur_id=e.id and l.id=el.livre_id\n" +
+                "WHERE l.satus_id=2";
         ps=con.prepareStatement(sql);
         response=ps.executeQuery();
-
         while(response.next()){
-            livre=new Livres();
-            livre.setNomLivre(response.getString("nom_livre"));
-            livre.setAuteur(response.getString("auteur"));
-            livre.setISBN(response.getInt("ISBN"));
+            collections=new Collections();
+            collections.setNomLivre(response.getString("nom_livre"));
+            collections.setAuteur(response.getString("auteur"));
+            collections.setISBN(response.getString("ISBN"));
+            status=new Status();
+            status.setStatus(response.getString("status"));
             emprunteur=new Emprunteur();
-            emprunteur.setNumeroCondidat(response.getInt("numero_condidat"));
+            emprunteur.setNumeroCondidat(response.getInt("nemuro_emprunteur"));
             emprunteur.setNom(response.getString("nom_emprunteur"));
-            emprunteur_livre=new EmprunteurLivre();
-            emprunteur_livre.setDate_emprunte(response.getDate("date_emprunte"));
-            emprunteur_livre.setDate_retour(response.getDate("date_retour"));
-            emprunteur_livre.setRetard(response.getInt("retard"));
-            emprunteur_livre.setLivre(livre);
-            emprunteur_livre.setEmprunteur(emprunteur);
-            livresList.add(emprunteur_livre);
+            emprunt_livre=new EmprunteurLivre();
+            emprunt_livre.setDate_emprunte(response.getDate("date_emprunte"));
+            emprunt_livre.setDate_retour(response.getDate("date_retour"));
+            emprunt_livre.setRetard(response.getInt("retard"));
+            emprunt_livre.setCollections(collections);
+            emprunt_livre.setStatus(status);
+            emprunt_livre.setEmprunteur(emprunteur);
+            livresList.add(emprunt_livre);
         }
         return livresList;
     }
 
-    public <T>void RetournerLivre(int nCondidat,int ISBN) throws Exception{
-            List<EmprunteurLivre> livresList=new ArrayList<>();
-            PreparedStatement ps=null;
-            ResultSet response=null;
-            db database=new db();
-            Connection con=null;
-            con=db.connect();
-            String sqlLivre="SELECT  e.id,l.id\n" +
-                    "from emprunteur e \n" +
-                    "join emprunteur_livre el ON el.emprunteur_id=e.id\n" +
-                    "join livre l on l.id=el.livre_id\n" +
-                    "where l.ISBN='"+ISBN+"' and e.numero_condidat='"+nCondidat+"'";
-            ps=con.prepareStatement(sqlLivre);
-            response= ps.executeQuery();
-            if(response.next()){
-                System.out.println(response.getInt("e.id"));
-                orm ormDeleteEmprunteur=new orm("emprunteur");
-                ormDeleteEmprunteur.WHERE("id","=",response.getInt("e.id")).delete();
-                System.out.println("deleted succesfully");
-            }else{
-                System.out.println("vous etes pas emprunter un livre");
-            }
+    public <T> boolean RetournerLivre(int nCondidat) throws Exception{
+            orm ormReturnLivre=new orm();
+            int id_emprunteur=ormReturnLivre.find("emprunteur","nemuro_emprunteur",nCondidat);
+            String sql="update emprunteur_livre el\n" +
+                    "SET isRetourner=1\n" +
+                    "where  el.emprunteur_id="+id_emprunteur+" AND el.date_emprunte=(SELECT (date_emprunte) " +
+                    "from emprunteur_livre el \n" +
+                    "where el.emprunteur_id="+id_emprunteur+" GROUP by el.date_emprunte DESC LIMIT 1)";
+        System.out.println(sql);
+            boolean response= ormReturnLivre.queryUpdate(sql);
+            return response;
 
     }
 
@@ -139,12 +136,27 @@ public class EmprunteurLivre {
     public void setEmprunteur(Emprunteur emprunteur) {
         this.emprunteur = emprunteur;
     }
-    public EmprunteurLivre getEmprunteur_livre() {
-        return emprunteur_livre;
+
+    public Status getStatus() {
+        return status;
     }
 
-    public void setEmprunteur_livre(EmprunteurLivre emprunteur_livre) {
-        this.emprunteur_livre = emprunteur_livre;
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+    public Collections getCollections() {
+        return collections;
     }
 
+    public void setCollections(Collections collections) {
+        this.collections = collections;
+    }
+
+    public EmprunteurLivre getEmprunt_livre() {
+        return emprunt_livre;
+    }
+
+    public void setEmprunt_livre(EmprunteurLivre emprunt_livre) {
+        this.emprunt_livre = emprunt_livre;
+    }
 }

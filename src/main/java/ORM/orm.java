@@ -9,10 +9,12 @@ public class orm {
     private StringBuilder conditions;
     private String tableName;
 
+    public orm(){}
     public orm(String table_name){
         this.tableName=table_name;
         this.conditions=new StringBuilder();
     }
+
     public <k, v> ResultSet save(Map<k, v> array) throws Exception {
         db database=new db();
         Connection con=null;
@@ -69,8 +71,8 @@ public class orm {
                     index++;
                 }
                 sql+=conditions;
-                ps=con.prepareStatement(sql);
-                ps.execute();
+                ps=con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.executeUpdate();
                 generatedKeys = ps.getGeneratedKeys();
             }else {
                 System.err.println("Error: No conditions specified for the SQL query.");
@@ -88,11 +90,10 @@ public class orm {
         ResultSet response=null;
         String sql="SELECT * FROM "+tableName;
         try{
-            con=database.connect();
             if(this.conditions.length()>0){
                 sql+=" WHERE "+this.conditions;
             }
-            System.out.println(sql);
+            con=database.connect();
             ps=con.prepareStatement(sql);
             response=ps.executeQuery();
         }catch(Exception e){
@@ -111,7 +112,6 @@ public class orm {
             con=database.connect();
             if(this.conditions.length()>0){
                 sql+=" WHERE "+this.conditions;
-                System.out.println(sql);
                 ps=con.prepareStatement(sql);
                 ps.executeUpdate();
             }else {
@@ -169,5 +169,40 @@ public class orm {
         return this;
     }
 
+    public static ResultSet query(String query) throws Exception {
+        db database=new db();
+        Connection con=null;
+        PreparedStatement ps=null;
+        ResultSet response=null;
+        if(query.length()>0){
+            con=database.connect();
+            ps=con.prepareStatement(query);
+            response=ps.executeQuery();
+            if (response.next()){
+                return response;
+            }
+            return null;
+        }
+        return null;
+    }
+    public static boolean queryUpdate(String query) throws Exception {
+        db database=new db();
+        if(query.length()>0){
+            Connection con=database.connect();
+            PreparedStatement ps=con.prepareStatement(query);
+            ps.executeUpdate();
+            return true;
+        }
+        return false;
+    }
+    public <T> int find(String TableName,String key, T condition) throws Exception{
+        orm ormFind=new orm(TableName);
+        ResultSet response=ormFind.WHERE(key,"=",condition).get();
+        if (response.next()){
+            return response.getInt("id");
+        }
+        return 0;
+
+    }
 
 }

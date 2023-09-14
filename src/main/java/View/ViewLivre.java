@@ -1,136 +1,125 @@
 package View;
 
-import controller.Emprunteur;
-import controller.EmprunteurLivre;
-import controller.Livres;
-import controller.Status;
+import controller.*;
 
+import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class ViewLivre {
-    public static Livres ajoutlivre() throws Exception {
-        Scanner scan=new Scanner(System.in);
-        System.out.println("donner le nom de livre");
-        String nom_livre= scan.nextLine();
-        System.out.println("donner le nom d'auteur");
-        String nom_auteur= scan.nextLine();
+    public static void ajoutlivre() throws Exception {
+        Scanner scan = new Scanner(System.in);
+        Collections collection=new Collections();
         System.out.println("donner le ISBN de livre");
-        int ISBN= Integer.parseInt(scan.nextLine());
-        Livres livre=new Livres();
-        livre.setNomLivre(nom_livre);
-        livre.setAuteur(nom_auteur);
-        livre.setISBN(ISBN);
-        livre.AjouterLivre(livre);
-        return livre;
+        String ISBN = scan.nextLine();
+        if (!collection.rechercheLivreDispo("ISBN",ISBN).isEmpty()) {
+            System.out.println("ISBN est deja existe.Si vous voulez ajouter quantity de ce livre modifier la quantite");
+        } else {
+            System.out.println("donner le nom de livre");
+            String nom_livre = scan.nextLine();
+            System.out.println("donner le nom d'auteur");
+            String nom_auteur = scan.nextLine();
+            System.out.println("donner quantity de livre");
+            int quantity = Integer.parseInt(scan.nextLine());
+            collection.setNomLivre(nom_livre.trim());
+            collection.setAuteur(nom_auteur.trim());
+            collection.setISBN(ISBN.trim());
+            collection.setQuantity(quantity);
+            collection.AjouterCollection(collection);
+            System.out.println("collection a ete ajoute avec succes");
+        }
     }
 
-    public static Livres updatelivre() throws Exception {
-        Scanner scan=new Scanner(System.in);
-        System.out.println("donner id de livre");
-        int id= Integer.parseInt(scan.nextLine());
-        System.out.println("donner le nom de livre");
-        String nom_livre= scan.nextLine();
-        System.out.println("donner le nom d'auteur");
-        String nom_auteur= scan.nextLine();
+    public static void updatelivre() throws Exception {
+        Scanner scan = new Scanner(System.in);
+        Collections collection=new Collections();
         System.out.println("donner le ISBN de livre");
-        int ISBN= Integer.parseInt(scan.nextLine());
-        System.out.println("donner le statut de livre");
-        int statut_livre= Integer.parseInt(scan.nextLine());
-        Livres livre=new Livres();
-        livre.setId(id);
-        livre.setNomLivre(nom_livre);
-        livre.setAuteur(nom_auteur);
-        livre.setISBN(ISBN);
-        livre.setId_statut(statut_livre);
-        livre.UpdateLivre(livre);
-        return livre;
+        String ISBN = scan.nextLine();
+        int id_livre=collection.find("ISBN",ISBN);
+        if (id_livre>0) {
+            System.out.println("donner le nom de livre");
+            String nom_livre = scan.nextLine();
+            System.out.println("donner le nom d'auteur");
+            String nom_auteur = scan.nextLine();
+            System.out.println("donner quantity de livre");
+            int quantity = Integer.parseInt(scan.nextLine());
+            collection.setId(id_livre);
+            collection.setNomLivre(nom_livre.trim());
+            collection.setAuteur(nom_auteur.trim());
+            collection.setISBN(ISBN.trim());
+            collection.setQuantity(quantity);
+            collection.UpdateCollection(collection);
+            System.out.println("collection a ete modifie avec succes");
+        } else {
+            System.out.println("ISBN est n' existe pas");
+        }
     }
 
     public static void getLivreDisponible() throws Exception {
-        Livres livre=new Livres();
-        List<Livres> livresList=livre.AffichageLivreDispo();
+        Collections livre=new Collections();
+        List<Collections> livresList=livre.AffichageLivreDispo();
         System.out.println("----------------------------------------------------------");
-        System.out.printf("| %-4s | %-20s | %-20s | %-4s |\n", "ID", "Nom de livre", "Nom de l'auteur", "ISBN");
+        System.out.printf("| %-4s | %-20s | %-20s | %-4s |\n", "Quantity", "Nom de livre", "Nom de l'auteur", "ISBN");
         System.out.println("----------------------------------------------------------");
-        for(Livres livr: livresList){
-            System.out.printf("| %-4d | %-20s | %-20s | %-4d |\n", livr.getId(), livr.getNomLivre(), livr.getAuteur(), livr.getISBN());
+        for(Collections livr: livresList){
+            System.out.printf("| %-4d | %-20s | %-20s | %-4s |\n", livr.getQuantity(), livr.getNomLivre(), livr.getAuteur(), livr.getISBN());
         }
         System.out.println("----------------------------------------------------------");
     }
 
     public static void deleteLivreperdu() throws Exception{
         Scanner scan=new Scanner(System.in);
-        System.out.println("donner id de livre qui veut vouler Supprimer");
-        int id=Integer.parseInt(scan.nextLine());
-        Livres livre=new Livres();
-        livre.deleteUneLivre(id);
-    }
-
-    public  static  void  rechercheByISBN() throws  Exception{
-        Scanner scan=new Scanner(System.in);
-        System.out.println("donner ISBN ou nom auteur ou nom de livre de livre");
-        Object ISBN=scan.nextLine();
-        Livres livre=new Livres();
-        List<Livres> livres= livre.rechercheISBN(ISBN);
-        System.out.println("----------------------------------------------------------");
-        System.out.printf("| %-4s | %-20s | %-20s | %-4s |\n", "ID", "Nom de livre", "Nom de l'auteur", "ISBN");
-        System.out.println("----------------------------------------------------------");
-        for(Livres livr: livres){
-            System.out.printf("| %-4d | %-20s | %-20s | %-4d |\n", livr.getId(), livr.getNomLivre(), livr.getAuteur(), livr.getISBN());
+        System.out.println("donner le ISBN de livre");
+        String ISBN = scan.nextLine();
+        Collections collections = new Collections();
+        int id_livre=collections.find("ISBN",ISBN);
+        if (id_livre>0) {
+            collections.deleteCollection(id_livre);
+            System.out.println("collection delete en succes");
+        }else{
+            System.out.println("ISBN n'existe pas");
         }
-        System.out.println("----------------------------------------------------------");
     }
 
-    public  static  void EmpruntLivre() throws  Exception{
+    public  static  void  rechercheLivreDispo() throws  Exception{
         Scanner scan=new Scanner(System.in);
-        System.out.println("donner ISBN ou nom auteur ou nom de livre de livre");
-        Object ISBN=scan.nextLine();
-        Emprunteur emprunteur=new Emprunteur();
-        System.out.println("donner nom emprunteur");
-        String nom_emprunteur=scan.nextLine();
-        emprunteur.setNom(nom_emprunteur);
-        System.out.println("donner numero d'etudiant(e)");
-        int numero_etud= Integer.parseInt(scan.nextLine());
-        emprunteur.setNumeroCondidat(numero_etud);
-        emprunteur.EmpruntLivre(emprunteur,ISBN);
-    }
-
-    public  static  void afficheLivreEmprunte() throws Exception{
-        EmprunteurLivre livre=new EmprunteurLivre();
-        List<EmprunteurLivre> livresList=livre.AffichageLivreEmprunter("l.status_id",2);
-        System.out.println("---------------------------------------------------------------------------" +
-                "------------------------------------------------------------------------------------------");
-        System.out.printf("| %-20s | %-20s | %-15s | %-20s | %-20s | %-20s| %-20s | %-4s |\n",
-                "Nom de livre", "Nom de l'auteur", "ISBN", "Nom de l'emprunteur",
-                "Numero du candidat", "Date emprunte", "Date de retour", "Retard");
-
-        System.out.println("-------------------------------------------------------------------------------" +
-                "--------------------------------------------------------------------------------------");
-        for (EmprunteurLivre livr : livresList) {
-            System.out.printf("| %-20s | %-20s | %-15s | %-20s | %-20s| %-20s | %-20s | %-4d |\n",
-                    livr.getLivre().getNomLivre(),
-                    livr.getLivre().getAuteur(),
-                    livr.getLivre().getISBN(),
-                    livr.getEmprunteur().getNom(),
-                    livr.getEmprunteur().getNumeroCondidat(),
-                    livr.getDate_emprunte(),
-                    livr.getDate_retour().toString(),
-                    livr.getRetard());
+        Collections collections=new Collections();
+        List<Collections> livres=new ArrayList<>();
+        System.out.println("rechercher par ISBN ou nom auteur ou nom de livre de livre");
+        System.out.println("1:ISBN");
+        System.out.println("2:nom d'auteur");
+        System.out.println("3:nom de livre");
+        int choise= Integer.parseInt(scan.nextLine());
+        switch (choise){
+            case 1:
+                System.out.println("donner ISBN");
+                Object ISBN=scan.nextLine();
+                livres= collections.rechercheLivreDispo("ISBN",ISBN);
+                break;
+            case 2:
+                System.out.println("donner auteur");
+                Object auteur=scan.nextLine();
+                livres= collections.rechercheLivreDispo("auteur",auteur);
+                break;
+            case 3:
+                System.out.println("donner nom de livre");
+                Object nomLivre=scan.nextLine();
+                livres= collections.rechercheLivreDispo("nom_livre",nomLivre);
+                break;
+            default:
+                break;
         }
-        System.out.println("------------------------------------------------------------------------------" +
-                "---------------------------------------------------------------------------------------");
+
+        System.out.println("---------------------------------------------------------------------------------------");
+        System.out.printf("| %-20s | %-20s| %-20s | %-4s |\n", "Nom de livre", "Nom de l'auteur", "ISBN","quantity");
+        System.out.println("---------------------------------------------------------------------------------------");
+        for(Collections livr: livres){
+            System.out.printf("| %-20s | %-20s | %-20s| %-4d |\n", livr.getNomLivre(), livr.getAuteur(), livr.getISBN(),livr.getQuantity());
+        }
+        System.out.println("---------------------------------------------------------------------------------------");
     }
 
-    public  static void RetournerLivreEmprunte() throws  Exception{
-        EmprunteurLivre emprunteurLivre=new EmprunteurLivre();
-        Scanner scanner=new Scanner(System.in);
-        System.out.println("donner le numero de condidat");
-        int nCondidat= scanner.nextInt();
-        System.out.println("donner ISBN de livre");
-        int ISBN= scanner.nextInt();
-        emprunteurLivre.RetournerLivre(nCondidat,ISBN);
-    }
 
     public static void StatistiqueLivre() throws Exception{
         Livres livre=new Livres();
